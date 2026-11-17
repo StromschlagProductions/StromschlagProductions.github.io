@@ -22,8 +22,9 @@ jobs:
         run: |
           if ("${{ inputs.publish }}" -eq "true" -and "${{ github.ref }}" -ne "refs/heads/main") { throw "Release nur auf main" }
           $v = (Get-Content PLUGIN_VERSION_FILE -TotalCount 1).Trim()
-          if ($v -notmatch '^\d+\.\d+(\.\d+)?$') { throw "Ungueltige Versionsnummer" }
+          if ($v -notmatch '^(0|[1-9][0-9]*)\.[0-9]$') { throw "Ungueltige Versionsnummer" }
           "PLUGIN_VERSION=$v" >> $env:GITHUB_ENV
+          "ZIP_NAME=PLUGIN_NAME-v$v-Windows-VST3.zip" >> $env:GITHUB_ENV
           $cmake = Get-Content CMakeLists.txt -Raw
           if ($cmake -notmatch 'COMPANY_NAME\s+"Stromschlag Audio"') { throw "Hersteller muss Stromschlag Audio sein" }
       - name: Konfigurieren
@@ -42,12 +43,12 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "pluginval failed" }
       - name: ZIP packen
         shell: pwsh
-        run: Compress-Archive -Path "build/PLUGIN_TARGET_artefacts/Release/VST3/PLUGIN_TARGET.vst3" -DestinationPath "PLUGIN_NAME-VST3-Windows.zip"
+        run: Compress-Archive -Path "build/PLUGIN_TARGET_artefacts/Release/VST3/PLUGIN_TARGET.vst3" -DestinationPath "$env:ZIP_NAME"
       - name: Release veroeffentlichen
         if: inputs.publish && github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ env.PLUGIN_VERSION }}-b${{ github.run_number }}
+          tag_name: v${{ env.PLUGIN_VERSION }}
           name: PLUGIN_NAME v${{ env.PLUGIN_VERSION }}
           make_latest: true
-          files: PLUGIN_NAME-VST3-Windows.zip
+          files: ${{ env.ZIP_NAME }}
