@@ -44,3 +44,20 @@ Vor Upload prüfen die Plugin-Workflows auch die Versionsmetadaten der tatsächl
 gebauten VST3-/Windows-Datei. Die Homepage zeigt erst das vorhandene stabile Release
 mit hochgeladenem Windows-VST3-ZIP an. Historische Releases werden nicht umbenannt
 oder gelöscht. SPATIAL LAB ist von dieser Versionsumstellung ausgenommen.
+
+
+## Screenshots passend zur Plugin-Version
+
+Für Locations, Radiophone, Dreamcatcher, Doppelganger und Gale vor Veröffentlichung
+alle Aufnahmen mit dem jeweiligen optionalen Screenshot-Werkzeug aus der echten
+JUCE-Oberfläche erzeugen (siehe `docs/SCREENSHOTS.md` im Plugin-Repository).
+Sichtbare Versionsnummer und `VERSION` müssen übereinstimmen. PNGs und das vom
+Werkzeug geschriebene `docs/screenshots.json` gemeinsam committen; die Versionsnummer
+im Manifest nicht von Hand ersetzen. Der Veröffentlichungsworkflow prüft die Version
+und die Bilddateien und hängt das Manifest als Release-Asset an.
+
+Die Homepage nutzt bei Releases mit diesem Manifest die Bilder direkt aus dem
+Release-Tag. Für bereits veröffentlichte Releases ohne Manifest sind die nachträglich
+aktualisierten Screenshots im HTML auf einen geprüften Commit festgelegt. Das umgeht
+alte Bild-Caches, ohne bestehende Release-Tags oder VST3-Dateien zu überschreiben.
+SPATIAL LAB bleibt beim eigenen Veröffentlichungsverfahren.
