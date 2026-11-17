@@ -30,4 +30,17 @@ Alle Audio-Plugins werden unabhängig vom Entwicklungswerkzeug (Claude, Codex, C
 
 ## Hersteller- und KI-Attribution
 
-Die vier regulären Windows-Build-Workflows prüfen die JUCE/CMake-Herstellerangabe auf `Stromschlag Audio`. SPATIAL LAB verwendet bereits eine eigene umfassende VST3-Hersteller- und Identitätsprüfung. Alle fünf Repositories enthalten `docs/PUBLISHING.md` als einheitliche Veröffentlichungsvorgabe. Claude, Codex und ChatGPT sind Entwicklungswerkzeuge, keine Plugin-Hersteller. Historische Commit-Autoren/Co-Autoren werden nicht rückwirkend verändert; Drittanbieter-Lizenzen und Urheberrechtshinweise bleiben bestehen.
+Die fünf regulären Windows-Build-Workflows prüfen die JUCE/CMake-Herstellerangabe auf `Stromschlag Audio`. SPATIAL LAB verwendet bereits eine eigene umfassende VST3-Hersteller- und Identitätsprüfung. Alle fünf Repositories enthalten `docs/PUBLISHING.md` als einheitliche Veröffentlichungsvorgabe. Claude, Codex und ChatGPT sind Entwicklungswerkzeuge, keine Plugin-Hersteller. Historische Commit-Autoren/Co-Autoren werden nicht rückwirkend verändert; Drittanbieter-Lizenzen und Urheberrechtshinweise bleiben bestehen.
+
+## Einheitliche öffentliche Versionen (Locations, Radiophone, Dreamcatcher, Doppelganger, Gale)
+
+Für diese fünf Plugins gilt `1.0 → 1.1 → … → 1.9 → 2.0 → 2.1 → …`.
+Keine öffentliche Major-/Minor-/Patch-Unterscheidung; Build-Laufnummern bleiben intern.
+`VERSION` ist die gemeinsame Quelle für Plugin-Anzeige, VST3-Metadaten, Release-Titel,
+Tag `v<VERSION>` und ZIP `Plugin-v<VERSION>-Windows-VST3.zip`. JUCE-interne ergänzende
+Nullen sind zulässig. Tags und Titel erhalten keine `-b...`-Suffixe.
+
+Vor Upload prüfen die Plugin-Workflows auch die Versionsmetadaten der tatsächlich
+gebauten VST3-/Windows-Datei. Die Homepage zeigt erst das vorhandene stabile Release
+mit hochgeladenem Windows-VST3-ZIP an. Historische Releases werden nicht umbenannt
+oder gelöscht. SPATIAL LAB ist von dieser Versionsumstellung ausgenommen.
