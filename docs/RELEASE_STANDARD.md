@@ -9,7 +9,7 @@ Alle Audio-Plugins werden unabhängig vom Entwicklungswerkzeug (Claude, Codex, C
 1. Änderungen auf einem Entwicklungszweig erstellen und Tests ausführen.
 2. Nach Review in `main` integrieren; `main` darf Entwicklungscode enthalten, ohne dass er sofort als fertige Version veröffentlicht wird.
 3. Die Windows-VST3-Abnahme ausführen: Build, Regressionstests und pluginval Strictness 8. Fehlgeschlagene Prüfungen blockieren die Veröffentlichung.
-4. Die Veröffentlichung ausdrücklich freigeben. Für Locations, Radiophone, Dreamcatcher und Doppelganger: Actions → **Windows-VST3 bauen** → **Run workflow**, Branch `main`, Option `publish=true`. Die Workflows prüfen die Herstellerangabe `Stromschlag Audio`. Für SpatialLab: separater, strengerer zweistufiger Prozess über **Build and test** und **Publish verified SPATIAL LAB release** mit Tag und zugehöriger erfolgreicher Abnahme.
+4. Die Veröffentlichung ausdrücklich freigeben. Für Locations, Radiophone, Dreamcatcher, Doppelganger und Gale: Actions → **Windows-VST3 bauen** → **Run workflow**, Branch `main`, Option `publish=true`. Die Workflows prüfen die Herstellerangabe `Stromschlag Audio`. Für SpatialLab: separater, strengerer zweistufiger Prozess über **Build and test** und **Publish verified SPATIAL LAB release** mit Tag und zugehöriger erfolgreicher Abnahme.
 5. Erst wenn ein öffentliches, nicht als Prerelease markiertes Release mit hochgeladener Windows-VST3-ZIP existiert, ist es für die Homepage verfügbar.
 6. Prüfen: `https://api.github.com/repos/StromschlagProductions/REPOSITORY/releases/latest` muss den neuen Tag und eine Windows-VST3-ZIP enthalten. GitHub Pages ruft diese Information zur Laufzeit ab. Bei API-Ausfall führen Download-Buttons auf `/releases/latest`, nicht auf veraltete ZIPs.
 
