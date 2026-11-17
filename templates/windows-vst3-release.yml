@@ -1,0 +1,53 @@
+name: Windows-VST3 bauen
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Release mit ZIP veroeffentlichen (nur auf main)"
+        type: boolean
+        default: false
+permissions:
+  contents: write
+concurrency:
+  group: windows-vst3-${{ github.ref }}
+  cancel-in-progress: ${{ ! inputs.publish }}
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Version und Hersteller pruefen
+        shell: pwsh
+        run: |
+          if (\"${{ inputs.publish }}\" -eq \"true\" -and \"${{ github.ref }}\" -ne \"refs/heads/main\") { throw \"Release nur auf main\" }
+          $v = (Get-Content PLUGIN_VERSION_FILE -TotalCount 1).Trim()
+          if ($v -notmatch '^\\d+\\.\\d+(\\.\\d+)?$') { throw \"Ungueltige Versionsnummer\" }
+          \"PLUGIN_VERSION=$v\" >> $env:GITHUB_ENV
+          $cmake = Get-Content CMakeLists.txt -Raw
+          if ($cmake -notmatch 'COMPANY_NAME\\s+\"Stromschlag Audio\"') { throw \"Hersteller muss Stromschlag Audio sein\" }
+      - name: Konfigurieren
+        run: cmake -B build -A x64
+      - name: Bauen
+        run: cmake --build build --config Release --parallel
+      - name: Regressionstests
+        run: ctest --test-dir build -C Release --output-on-failure
+      - name: pluginval Strictness 8
+        shell: pwsh
+        run: |
+          curl.exe -fsSL -o pluginval.zip https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Windows.zip
+          if ($LASTEXITCODE -ne 0) { throw \"pluginval download failed\" }
+          Expand-Archive pluginval.zip -DestinationPath pluginval
+          ./pluginval/pluginval.exe --strictness-level 8 --validate-in-process --validate \"build/PLUGIN_TARGET_artefacts/Release/VST3/PLUGIN_TARGET.vst3\"
+          if ($LASTEXITCODE -ne 0) { throw \"pluginval failed\" }
+      - name: ZIP packen
+        shell: pwsh
+        run: Compress-Archive -Path \"build/PLUGIN_TARGET_artefacts/Release/VST3/PLUGIN_TARGET.vst3\" -DestinationPath \"PLUGIN_NAME-VST3-Windows.zip\"
+      - name: Release veroeffentlichen
+        if: inputs.publish && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.PLUGIN_VERSION }}-b${{ github.run_number }}
+          name: PLUGIN_NAME v${{ env.PLUGIN_VERSION }}
+          make_latest: true
+          files: PLUGIN_NAME-VST3-Windows.zip
