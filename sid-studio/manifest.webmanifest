@@ -1,0 +1,24 @@
+{
+ "name": "SID Heartbeat Studio",
+ "short_name": "SID Studio",
+ "description": "Piano-Roll und Tracker für C64-Musik (Heartbeat), mit SID-Import und -Export",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "background_color": "#101318",
+ "theme_color": "#101318",
+ "lang": "de",
+ "icons": [
+  {
+   "src": "icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any maskable"
+  }
+ ]
+}
