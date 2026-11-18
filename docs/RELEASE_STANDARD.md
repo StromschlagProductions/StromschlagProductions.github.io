@@ -32,18 +32,19 @@ Alle Audio-Plugins werden unabhängig vom Entwicklungswerkzeug (Claude, Codex, C
 
 Die fünf regulären Windows-Build-Workflows prüfen die JUCE/CMake-Herstellerangabe auf `Stromschlag Audio`. SPATIAL LAB verwendet bereits eine eigene umfassende VST3-Hersteller- und Identitätsprüfung. Alle fünf Repositories enthalten `docs/PUBLISHING.md` als einheitliche Veröffentlichungsvorgabe. Claude, Codex und ChatGPT sind Entwicklungswerkzeuge, keine Plugin-Hersteller. Historische Commit-Autoren/Co-Autoren werden nicht rückwirkend verändert; Drittanbieter-Lizenzen und Urheberrechtshinweise bleiben bestehen.
 
-## Einheitliche öffentliche Versionen (Locations, Radiophone, Dreamcatcher, Doppelganger, Gale)
+## Einheitliche öffentliche Versionen
 
-Für diese fünf Plugins gilt `1.0 → 1.1 → … → 1.9 → 2.0 → 2.1 → …`.
+Für die fünf regulären Plugins und SPATIAL LAB ab v1.3 gilt `1.0 → 1.1 → … → 1.9 → 2.0 → 2.1 → …`.
 Keine öffentliche Major-/Minor-/Patch-Unterscheidung; Build-Laufnummern bleiben intern.
-`VERSION` ist die gemeinsame Quelle für Plugin-Anzeige, VST3-Metadaten, Release-Titel,
+Bei den fünf regulären Plugins ist `VERSION` die gemeinsame Quelle für Plugin-Anzeige, VST3-Metadaten, Release-Titel,
 Tag `v<VERSION>` und ZIP `Plugin-v<VERSION>-Windows-VST3.zip`. JUCE-interne ergänzende
 Nullen sind zulässig. Tags und Titel erhalten keine `-b...`-Suffixe.
 
 Vor Upload prüfen die Plugin-Workflows auch die Versionsmetadaten der tatsächlich
 gebauten VST3-/Windows-Datei. Die Homepage zeigt erst das vorhandene stabile Release
 mit hochgeladenem Windows-VST3-ZIP an. Historische Releases werden nicht umbenannt
-oder gelöscht. SPATIAL LAB ist von dieser Versionsumstellung ausgenommen.
+oder gelöscht. SPATIAL LAB bezieht seine interne Version aus CMake (1.3.0),
+zeigt öffentlich 1.3 und verwendet Tag v1.3 sowie SpatialLab-v1.3-Windows-x64-VST3.zip.
 
 
 ## Screenshots passend zur Plugin-Version
@@ -60,4 +61,9 @@ Die Homepage nutzt bei Releases mit diesem Manifest die Bilder direkt aus dem
 Release-Tag. Für bereits veröffentlichte Releases ohne Manifest sind die nachträglich
 aktualisierten Screenshots im HTML auf einen geprüften Commit festgelegt. Das umgeht
 alte Bild-Caches, ohne bestehende Release-Tags oder VST3-Dateien zu überschreiben.
-SPATIAL LAB bleibt beim eigenen Veröffentlichungsverfahren.
+SPATIAL LAB behält sein eigenes strengeres Veröffentlichungsverfahren und erfasst
+vier native Windows-Aufnahmen (beide Retro-Episoden, Classic Dunkel und Hell).
+Das automatisch aus den echten CI-Aufnahmen erzeugte Manifest docs/screenshots.json
+prüft Version, Herkunftslauf und Bild-Hashes; es wird ebenfalls als Release-Asset
+veröffentlicht. Die Homepage zeigt den tatsächlichen neuesten stabilen Release-Tag
+und dessen Windows-VST3-ZIP, ohne eine fest eingetragene Ersatzversion.
