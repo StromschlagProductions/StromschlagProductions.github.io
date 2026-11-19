@@ -2,7 +2,7 @@
 
 Browser-App für C64-Musik: Noten in einer Piano-Roll setzen, Songs für den C64 Ultimate (Heartbeat-Soundtracker) lesen und schreiben, `.sid`-Dateien importieren und als `.sid` exportieren.
 
-**Starten:** <https://stromschlagproductions.github.io/sid-studio/>
+**Starten:** <https://larseickstaedt.de/sid-studio/>
 Die App lässt sich im Browser installieren (Chrome/Edge: Symbol in der Adressleiste) und läuft dann auch ohne Internet. Die Datei `index.html` ist die komplette App und kann auch einzeln heruntergeladen und per Doppelklick geöffnet werden.
 
 Alle Songs und Einstellungen bleiben im eigenen Browser, es werden keine Daten gesendet.
