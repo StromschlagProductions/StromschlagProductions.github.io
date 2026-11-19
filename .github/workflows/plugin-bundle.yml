@@ -1,0 +1,56 @@
+name: Plugin bundle
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+  repository_dispatch:
+    types: [plugin-release]
+  push:
+    branches: [main]
+    paths: ['scripts/build_bundle.py', 'tests/test_bundle.py', '.github/workflows/plugin-bundle.yml']
+  pull_request:
+    paths: ['scripts/build_bundle.py', 'tests/test_bundle.py', '.github/workflows/plugin-bundle.yml']
+permissions:
+  contents: read
+concurrency:
+  group: plugin-bundle-${{ github.event_name == 'pull_request' && github.ref || 'publish' }}
+  cancel-in-progress: false
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s tests -v
+  publish:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: test
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Discover, validate and publish complete bundle
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python scripts/build_bundle.py --repo "$GITHUB_REPOSITORY" --publish --keepalive
+      - name: Preserve build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-diagnostics
+          path: |
+            bundle-output/bundle-manifest.json
+            bundle-output/SHA256SUMS.txt
+          if-no-files-found: ignore
