@@ -68,6 +68,17 @@ def repositories():
         page += 1
 
 
+def plugin_product(text):
+    """Produktname = PRODUCT_NAME aus juce_add_plugin(...), sonst der Zielname (bestimmt den .vst3-Ordnernamen)."""
+    match = re.search(r'juce_add_plugin\s*\(\s*([A-Za-z][A-Za-z0-9_]*)', text)
+    if not match:
+        return None
+    block = text[match.end():]
+    end = re.search(r'\bjuce_add_\w+\s*\(', block)
+    name = re.search(r'PRODUCT_NAME\s+"([A-Za-z][A-Za-z0-9_]*)"', block[:end.start()] if end else block)
+    return name[1] if name else match[1]
+
+
 def choose_asset(release, product):
     if release['draft'] or release['prerelease'] or not release.get('published_at'):
         raise ValueError('Not a published stable release')
@@ -188,10 +199,9 @@ def snapshot(out, previous=None):
             ref = urllib.parse.quote(release['tag_name'], safe='')
             cmake = api(f'repos/{OWNER}/{name}/contents/CMakeLists.txt?ref={ref}')
             text = base64.b64decode(cmake['content']).decode() if cmake and cmake.get('type') == 'file' else ''
-            match = re.search(r'juce_add_plugin\s*\(\s*([A-Za-z][A-Za-z0-9_]*)', text)
-            if not match or 'VST3' not in text or not re.search(r'COMPANY_NAME\s+"Stromschlag Audio"', text):
+            product = plugin_product(text)
+            if not product or 'VST3' not in text or not re.search(r'COMPANY_NAME\s+"Stromschlag Audio"', text):
                 raise ValueError('Not a qualifying Stromschlag JUCE VST3 project')
-            product = match[1]
             asset = choose_asset(release, product)
             found.append(dict(repository=name, product=product, version=release['tag_name'],
                               release_id=release['id'], asset_id=asset['id'], asset_name=asset['name'],

@@ -149,5 +149,15 @@ class BundleTests(unittest.TestCase):
         self.assertFalse(any('edit' in c for c in calls))
 
 
+class PluginProductTests(unittest.TestCase):
+    def test_product_name_overrides_target_name(self):
+        text = 'juce_add_plugin(Moves\n    COMPANY_NAME "Stromschlag Audio"\n    PRODUCT_NAME "MOVES"\n    IS_SYNTH FALSE)\njuce_add_console_app(T PRODUCT_NAME "Other")\n'
+        self.assertEqual(b.plugin_product(text), 'MOVES')
+
+    def test_falls_back_to_target_name(self):
+        text = 'juce_add_plugin(Voice\n    COMPANY_NAME "Stromschlag Audio")\njuce_add_console_app(T PRODUCT_NAME "Other")\n'
+        self.assertEqual(b.plugin_product(text), 'Voice')
+
+
 if __name__ == '__main__':
     unittest.main()
