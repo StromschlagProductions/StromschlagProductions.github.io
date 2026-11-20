@@ -2496,24 +2496,24 @@ const SidExport = (() => {
     $('#songSub').title = 'Belegt / höchstens möglich. Patterns zählen, wenn sie im Ablauf stehen oder Noten enthalten.' + (near ? ' ⚠ Eine Grenze ist fast erreicht.' : '');
   }
   /* Neuer Song aus der Vorlage */
-  const TPL_KEY = 'upr-vorlage-v1', UI_KEY = 'upr-eigene-instrumente-v1', LIB_KEY = 'upr-bibliothek-v2', MIG_KEY = 'upr-bibliothek-migriert', FOLD_KEY = 'upr-ordner-zu-v1';
+  const TPL_SLOT = 'upr-vorlage-v1', UI_SLOT = 'upr-eigene-instrumente-v1', LIB_SLOT = 'upr-bibliothek-v2', MIG_SLOT = 'upr-bibliothek-migriert', FOLD_SLOT = 'upr-ordner-zu-v1';
   /* Preset-Bibliothek: dauerhaft in der Artifact-Datenbank (geräte- und browserübergreifend),
      localStorage nur als Zwischenspeicher und Rückfall, wenn keine Datenbank da ist. */
   const DEF_F = 'Eigene Instrumente', HB_F = 'Heartbeat';
   S.userInst = []; S.folders = [DEF_F]; S.libState = 'lokal';
-  S.foldClosed = (() => { try { return JSON.parse(localStorage.getItem(FOLD_KEY) || 'null') || { [HB_F]: true }; } catch (e) { return { [HB_F]: true }; } })();
-  function saveFold() { try { localStorage.setItem(FOLD_KEY, JSON.stringify(S.foldClosed)); } catch (e) {} }
+  S.foldClosed = (() => { try { return JSON.parse(localStorage.getItem(FOLD_SLOT) || 'null') || { [HB_F]: true }; } catch (e) { return { [HB_F]: true }; } })();
+  function saveFold() { try { localStorage.setItem(FOLD_SLOT, JSON.stringify(S.foldClosed)); } catch (e) {} }
   let LIB = null;
   const recB64 = r => btoa(String.fromCharCode.apply(null, r)), b64Rec = b => Uint8Array.from(atob(b), c => c.charCodeAt(0));
   /* gleiche Klangdaten (ohne Namen) = gleiche ID, so landet nichts doppelt */
   function instId(r) { let a = 0x811c9dc5, b = 7; for (let i = 16; i < 64; i++) { a = Math.imul(a ^ r[i], 16777619) >>> 0; b = (Math.imul(b, 31) + r[i]) >>> 0; } return 'i' + a.toString(16).padStart(8, '0') + b.toString(16).padStart(8, '0'); }
   function libFolderList(items) { const f = [DEF_F]; S.folders.concat(items.map(u => u.folder)).forEach(x => { if (x && x !== HB_F && !f.includes(x)) f.push(x); }); return f; }
-  function saveLocal() { try { localStorage.setItem(LIB_KEY, JSON.stringify({ folders: S.folders, items: S.userInst.map(u => ({ id: u.id, n: u.name, b: recB64(u.rec), f: u.folder, t: u.t })) })); } catch (e) {} }
+  function saveLocal() { try { localStorage.setItem(LIB_SLOT, JSON.stringify({ folders: S.folders, items: S.userInst.map(u => ({ id: u.id, n: u.name, b: recB64(u.rec), f: u.folder, t: u.t })) })); } catch (e) {} }
   function loadUserInst() {
     try {
-      const v2 = JSON.parse(localStorage.getItem(LIB_KEY) || 'null');
+      const v2 = JSON.parse(localStorage.getItem(LIB_SLOT) || 'null');
       if (v2) { S.userInst = v2.items.map(x => ({ id: x.id, name: x.n, rec: b64Rec(x.b), folder: x.f || DEF_F, t: x.t || 0 })).filter(u => u.rec.length === 64); S.folders = libFolderList(S.userInst.concat((v2.folders || []).map(f => ({ folder: f })))); return; }
-      const a = JSON.parse(localStorage.getItem(UI_KEY) || '[]'); let t = Date.now() - a.length;
+      const a = JSON.parse(localStorage.getItem(UI_SLOT) || '[]'); let t = Date.now() - a.length;
       S.userInst = a.map(x => { const rec = b64Rec(x.b); return { id: instId(rec), name: x.n, rec, folder: DEF_F, t: t++ }; }).filter(u => u.rec.length === 64);
     } catch (e) { S.userInst = []; }
   }
@@ -2534,14 +2534,14 @@ const SidExport = (() => {
     if (!window.claude || typeof claude.use !== 'function') return;
     let db = null; try { db = await claude.use('db'); } catch (e) { db = null; }
     if (!db) return;
-    LIB = db; S.libState = 'lädt'; let migrated = false; try { migrated = !!localStorage.getItem(MIG_KEY); } catch (e) {}
+    LIB = db; S.libState = 'lädt'; let migrated = false; try { migrated = !!localStorage.getItem(MIG_SLOT); } catch (e) {}
     const timer = setTimeout(() => { if (S.libState === 'lädt') { S.libState = 'offline'; libRefresh(); } }, 10000);
     db.collection('presets').onSnapshot(snap => {
       let items = snap.docs.map(d => { const x = d.data(); try { return { id: d.id, name: x.n || 'Klang', rec: b64Rec(x.b), folder: x.f || DEF_F, t: x.t || 0 }; } catch (e) { return null; } }).filter(u => u && u.rec.length === 64);
       if (!snap.metadata.fromCache) {
         clearTimeout(timer); S.libState = 'online';
         /* einmalig: was bisher nur in diesem Browser lag, in die Datenbank übernehmen */
-        if (!migrated) { migrated = true; const have = new Set(items.map(u => u.id)); S.userInst.filter(u => !have.has(u.id)).forEach(u => { items.push(u); libPut(u); }); try { localStorage.setItem(MIG_KEY, '1'); } catch (e) {} }
+        if (!migrated) { migrated = true; const have = new Set(items.map(u => u.id)); S.userInst.filter(u => !have.has(u.id)).forEach(u => { items.push(u); libPut(u); }); try { localStorage.setItem(MIG_SLOT, '1'); } catch (e) {} }
       } else if (!migrated) { const have = new Set(items.map(u => u.id)); items = items.concat(S.userInst.filter(u => !have.has(u.id))); }
       items.sort((a, b) => a.t - b.t); S.userInst = items; S.folders = libFolderList(items); saveLocal(); libRefresh();
     }, e => { clearTimeout(timer); S.libState = 'offline'; LIB = null; libRefresh(); });
@@ -2870,7 +2870,7 @@ const SidExport = (() => {
     return await new Response(new Blob([bin]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
   }
   $('#newBtn').addEventListener('click', async () => {
-    let b = null; try { b = localStorage.getItem(TPL_KEY); } catch (e) { b = null; }
+    let b = null; try { b = localStorage.getItem(TPL_SLOT); } catch (e) { b = null; }
     let buf = null;
     if (b) buf = Uint8Array.from(atob(b), c => c.charCodeAt(0)).buffer;
     else { try { buf = await builtinTemplate(); } catch (e) { buf = null; } }
@@ -2897,7 +2897,7 @@ const SidExport = (() => {
       $('#songSub').textContent = 'SID wird eingelesen und abgeschrieben …'; await new Promise(r => setTimeout(r, 40));
       globalThis.SIDOPT = Object.assign(globalThis.SIDOPT || {}, { maxI: +$('#sidMax').value || 62 });
       const res = SidImport.fromBuffer(buf, tune);
-      let tpl = null; try { const b = localStorage.getItem(TPL_KEY); if (b) tpl = Uint8Array.from(atob(b), c => c.charCodeAt(0)).buffer; } catch (er) { tpl = null; }
+      let tpl = null; try { const b = localStorage.getItem(TPL_SLOT); if (b) tpl = Uint8Array.from(atob(b), c => c.charCodeAt(0)).buffer; } catch (er) { tpl = null; }
       if (!tpl) { try { tpl = await builtinTemplate(); } catch (er) { tpl = null; } }
       if (!tpl) throw new Error('Keine Vorlage gefunden. Lade einmal „Neuer Song“ und wähle deinen leeren Heartbeat-Song.');
       const out = SidImport.toHeartbeat(tpl, res);
@@ -2959,7 +2959,7 @@ const SidExport = (() => {
     $('#mGo').addEventListener('click', async () => {
       const res = midiSummary(); if (!res) return;
       if (!res.noteCount) { $('#mSum').innerHTML += '<div class="wr2">Keine Spur ausgewählt.</div>'; return; }
-      let tpl = null; try { const b = localStorage.getItem(TPL_KEY); if (b) tpl = Uint8Array.from(atob(b), c => c.charCodeAt(0)).buffer; } catch (er) { tpl = null; }
+      let tpl = null; try { const b = localStorage.getItem(TPL_SLOT); if (b) tpl = Uint8Array.from(atob(b), c => c.charCodeAt(0)).buffer; } catch (er) { tpl = null; }
       if (!tpl) { try { tpl = await builtinTemplate(); } catch (er) { tpl = null; } }
       if (!tpl) { $('#mSum').innerHTML += '<div class="wr2">Keine Vorlage gefunden. Lade einmal „Neuer Song“ und wähle deinen leeren Heartbeat-Song.</div>'; return; }
       const out = MidiImport.toHeartbeat(tpl, res); back.remove();
@@ -3069,7 +3069,7 @@ const SidExport = (() => {
   });
   $('#tplFile').addEventListener('change', async e => {
     const f = e.target.files[0]; e.target.value = ''; if (!f) return;
-    try { const buf = await f.arrayBuffer(); HB.parse(buf.slice(0)); try { localStorage.setItem(TPL_KEY, toB64(buf)); } catch (err) {} loadBytes(buf.slice(0), 'Neuer Song', true); }
+    try { const buf = await f.arrayBuffer(); HB.parse(buf.slice(0)); try { localStorage.setItem(TPL_SLOT, toB64(buf)); } catch (err) {} loadBytes(buf.slice(0), 'Neuer Song', true); }
     catch (err) { loadError(err); }
   });
   function buildLanes() {
