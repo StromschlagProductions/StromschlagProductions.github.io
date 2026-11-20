@@ -1,0 +1,60 @@
+name: Plugin-card drafts
+# Entdeckt neu veroeffentlichte Stromschlag-Plugins ohne eigene Kachel auf der Startseite
+# und oeffnet dafuer einen Entwurfs-Pull-Request (niemals ein direkter Commit auf main,
+# niemals ein automatischer Merge): Kategorie-Label, Beschreibungstext und Bildwahl
+# werden nur geraten und muessen von einem Menschen geprueft werden, siehe PR-Beschreibung.
+on:
+  schedule:
+    - cron: '41 7 * * *'
+  workflow_dispatch:
+  repository_dispatch:
+    types: [plugin-release]
+  push:
+    branches: [main]
+    paths: ['scripts/new_plugin_cards.py', 'scripts/build_bundle.py', 'tests/test_new_plugin_cards.py', '.github/workflows/plugin-cards.yml']
+  pull_request:
+    paths: ['scripts/new_plugin_cards.py', 'scripts/build_bundle.py', 'tests/test_new_plugin_cards.py', '.github/workflows/plugin-cards.yml']
+permissions:
+  contents: read
+concurrency:
+  group: plugin-cards-${{ github.event_name == 'pull_request' && github.ref || 'draft' }}
+  cancel-in-progress: false
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest tests.test_new_plugin_cards -v
+        working-directory: .
+        env:
+          PYTHONPATH: scripts
+  draft:
+    if: github.event_name != 'pull_request'
+    needs: test
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Git-Identitaet fuer Entwurfs-Commits einrichten
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh auth setup-git
+      - name: Neue Plugin-Kacheln entdecken und als Entwurfs-PR vorschlagen
+        working-directory: scripts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python new_plugin_cards.py --index ../index.html
