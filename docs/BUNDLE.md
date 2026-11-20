@@ -34,7 +34,7 @@ Das Manifest des letzten veröffentlichten Bundles steuert Vollständigkeit und 
 
 ## Installation und Struktur
 
-Im ZIP liegen die vollständigen originalen `.vst3`-Verzeichnisse unmittelbar an der Wurzel, ohne zusätzliche Windows-, Versions- oder Plugin-Unterordner. Alle enthaltenen Ressourcen werden unverändert mitgenommen. Außerdem: `VERSIONEN.txt`, `INSTALLATION.txt`, `bundle-manifest.json`. Außerhalb der Module gelieferte rechtliche Hinweise werden unter `LIZENZEN/<Produkt>/` bewahrt. Keine verschachtelten Download-ZIPs und keine Testdateien.
+Im ZIP liegen die vollständigen originalen `.vst3`-Verzeichnisse unmittelbar an der Wurzel, ohne zusätzliche Windows-, Versions- oder Plugin-Unterordner. Alle enthaltenen Ressourcen werden unverändert mitgenommen. Außerdem: `VERSIONEN.txt`, `INSTALLATION.txt`. Das `bundle-manifest.json` liegt nur als separates Release-Asset bei, nicht im ZIP. Außerhalb der Module gelieferte rechtliche Hinweise werden unter `LIZENZEN/<Produkt>/` bewahrt. Keine verschachtelten Download-ZIPs und keine Testdateien.
 
 Alle `.vst3`-Ordner nach dem Entpacken direkt nach `C:\Program Files\Common Files\VST3\` kopieren; vorher die DAW schließen und bisherige Versionen sichern.
 

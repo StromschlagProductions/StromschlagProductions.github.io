@@ -113,7 +113,7 @@ class BundleTests(unittest.TestCase):
             self.assertEqual(len(second['plugins']), 2)
             with zipfile.ZipFile(out/b.ARCHIVE) as z:
                 roots = {n.split('/')[0] for n in z.namelist()}
-                self.assertEqual(roots, {'Voice.vst3', 'Other.vst3', 'VERSIONEN.txt', 'INSTALLATION.txt', b.MANIFEST})
+                self.assertEqual(roots, {'Voice.vst3', 'Other.vst3', 'VERSIONEN.txt', 'INSTALLATION.txt'})
 
     def test_bad_new_candidate_skipped_existing_failure_preserves_zip(self):
         data = archive()

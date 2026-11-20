@@ -251,13 +251,14 @@ def build(out, previous=None):
     for p in accepted:
         versions += [f'{p["product"]}: {p["version"]}', f'https://github.com/{OWNER}/{p["repository"]}', '']
     entries['VERSIONEN.txt'] = '\n'.join(versions).encode()
-    entries[MANIFEST] = json.dumps(manifest, indent=2, ensure_ascii=False).encode()
+    manifest_bytes = json.dumps(manifest, indent=2, ensure_ascii=False).encode()  # nur als Release-Asset, nicht im ZIP
     entries['INSTALLATION.txt'] = ('STROMSCHLAG AUDIO – Installation unter Windows x64\n\n'
         'DAW schließen und dieses ZIP vollständig entpacken. Alle enthaltenen .vst3-Ordner\n'
         'gemeinsam auswählen und vollständig nach C:\\Program Files\\Common Files\\VST3\\ kopieren.\n'
         'Vorhandene gleichnamige Plugin-Ordner nach Sicherung der bisherigen Version ersetzen;\n'
         'nicht nur die inneren Moduldateien kopieren. DAW öffnen und ggf. Plugins neu scannen.\n'
-        'Versionsübersicht: VERSIONEN.txt. Rechtliche Hinweise ggf. im Ordner LIZENZEN.\n'
+        'Versionsübersicht: VERSIONEN.txt. Der Ordner LIZENZEN enthält nur Lizenzhinweise zum Lesen\n'
+        '(nicht installieren, nichts kopieren).\n'
         'Es wird kein zusätzlicher Plugins-, Windows- oder Versions-Unterordner benötigt.\n').encode()
     target = out / ARCHIVE
     temp = out / (ARCHIVE + '.tmp')
@@ -270,8 +271,8 @@ def build(out, previous=None):
         for p in accepted:
             validate_zip(_product_zip(entries, p['product']), p['product'], p['version'])
     temp.replace(target)
-    (out / MANIFEST).write_bytes(entries[MANIFEST])
-    (out / 'SHA256SUMS.txt').write_text(f'{sha(target.read_bytes())}  {ARCHIVE}\n{sha(entries[MANIFEST])}  {MANIFEST}\n')
+    (out / MANIFEST).write_bytes(manifest_bytes)
+    (out / 'SHA256SUMS.txt').write_text(f'{sha(target.read_bytes())}  {ARCHIVE}\n{sha(manifest_bytes)}  {MANIFEST}\n')
     print(f'BUILT: {len(accepted)} plugins; ' + fingerprint)
     for reason in skipped:
         print('SKIPPED: ' + reason)
