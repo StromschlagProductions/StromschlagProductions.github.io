@@ -56,13 +56,18 @@ def download(url, limit=MAX_ZIP):
     return data
 
 
+# Plugins in der Entwicklung: werden (noch) nicht ins Bundle aufgenommen, auch wenn sie schon ein Release haben.
+# Zum Freigeben den Eintrag entfernen.
+EXCLUDED_REPOSITORIES = {'Stromscore-vst'}
+
+
 def repositories():
     page = 1
     while True:
         rows = api(f'users/{OWNER}/repos?type=owner&per_page=100&page={page}')
         if not rows:
             return
-        yield from (r for r in rows if not r['private'] and not r['fork'])
+        yield from (r for r in rows if not r['private'] and not r['fork'] and r['name'] not in EXCLUDED_REPOSITORIES)
         if len(rows) < 100:
             return
         page += 1

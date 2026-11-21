@@ -51,3 +51,7 @@ python scripts/build_bundle.py --out bundle-output --previous bundle-output/bund
 Der letzte Befehl muss bei unveränderten Releases `UNCHANGED` ausgeben. Ohne `--publish` werden keine externen Änderungen vorgenommen. Zum Veröffentlichen benötigt der Actions-Job zusätzlich `gh`, `GH_TOKEN`, `GITHUB_SHA` und Schreibrecht für Releases.
 
 Falls die automatische Veröffentlichung blockiert wird: Actions muss aktiviert sein; `main` muss der Default-Branch sein. Die Organisations-/Repository-Richtlinien müssen `contents: write` für den Job zulassen. Der spätere Heartbeat benötigt direkte Inhaltsänderungen auf `main`. Fehlende Rechte werden nicht durch einen PAT oder externen Dienst umgangen.
+
+## Plugins in der Entwicklung zurückhalten
+
+Repos, die in `EXCLUDED_REPOSITORIES` (`scripts/build_bundle.py`) stehen, kommen nicht ins Bundle, auch wenn sie schon ein Release haben. Zum Freigeben den Eintrag entfernen; beim nächsten stündlichen Lauf ist das Plugin dabei.
