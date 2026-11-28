@@ -61,13 +61,20 @@ def download(url, limit=MAX_ZIP):
 EXCLUDED_REPOSITORIES = {'Stromscore-vst'}
 
 
+def bundled_name(name):
+    # Nur VST-Plugins: der Repo-Name muss "vst" enthalten (ohne Gross-/Kleinschreibung).
+    # Stromscore wird unabhaengig vom Namen nie veroeffentlicht.
+    lowered = name.casefold()
+    return 'vst' in lowered and 'stromscore' not in lowered and name not in EXCLUDED_REPOSITORIES
+
+
 def repositories():
     page = 1
     while True:
         rows = api(f'users/{OWNER}/repos?type=owner&per_page=100&page={page}')
         if not rows:
             return
-        yield from (r for r in rows if not r['private'] and not r['fork'] and r['name'] not in EXCLUDED_REPOSITORIES)
+        yield from (r for r in rows if not r['private'] and not r['fork'] and bundled_name(r['name']))
         if len(rows) < 100:
             return
         page += 1

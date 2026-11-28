@@ -80,7 +80,7 @@ class BundleTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 b.validate_zip(out.getvalue(), 'Voice', '1.0')
 
-    def test_new_repo_discovered_without_name_convention(self):
+    def test_new_repo_discovered_from_listing(self):
         release = dict(draft=False, prerelease=False, published_at='now', tag_name='v1.0', id=3,
                        assets=[dict(id=1, state='uploaded', name='Voice-Windows-VST3.zip', size=10,
                                     updated_at='now', browser_download_url=f'https://github.com/{b.OWNER}/unexpected/releases/download/v1.0/Voice.zip')])
@@ -90,6 +90,16 @@ class BundleTests(unittest.TestCase):
         with patch.object(b, 'repositories', return_value=[{'name': 'unexpected'}]), patch.object(b, 'api', side_effect=api):
             found, _ = b.snapshot(Path('.'))
         self.assertEqual(found[0]['repository'], 'unexpected')
+
+    def test_only_vst_named_repositories_are_bundled(self):
+        rows = [dict(name=n, private=False, fork=False) for n in
+                ['Arpeggiator-vst', 'Moves-vst', 'Stromscore-vst', 'StromScore-VST', 'GIZMO64', 'Storyforge', 'StromschlagProductions.github.io']]
+        with patch.object(b, 'api', side_effect=lambda path: rows if 'page=1' in path else []):
+            names = [r['name'] for r in b.repositories()]
+        self.assertEqual(names, ['Arpeggiator-vst', 'Moves-vst'])
+        self.assertFalse(b.bundled_name('Stromscore-vst'))
+        self.assertFalse(b.bundled_name('Some-Stromscore-VST-Fork'))
+        self.assertTrue(b.bundled_name('Dreamcatcher-VST'))
 
     def test_stable_release_and_unique_asset(self):
         release = dict(draft=False, prerelease=True, published_at='now', assets=[])
